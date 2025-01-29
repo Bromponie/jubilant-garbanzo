@@ -1,0 +1,24 @@
+{
+    "menu": [
+        {
+            "title": "Connon",
+            "path": "connon.py"
+        },
+        {
+            "title": "Arcade",
+            "path": "arcade.py"
+        },
+        {
+            "title": "Piong Pong",
+            "path": "ping_pong.py"
+        },
+        {
+            "title": "Sun Rise",
+            "path": "sunrise.py"
+        },
+        {
+            "title": "Sun",
+            "path": "sun.py"
+        }
+    ]
+}
