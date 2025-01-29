@@ -2,23 +2,23 @@
     "menu": [
         {
             "title": "Connon",
-            "path": "connon.py"
+            "path": "games/cannon/connon.py"
         },
         {
             "title": "Arcade",
-            "path": "arcade.py"
+            "path": "games/arcade/arcade.py"
         },
         {
-            "title": "Piong Pong",
-            "path": "ping_pong.py"
+            "title": "Ping Pong",
+            "path": "games/pingpong/ping_pong.py"
         },
         {
             "title": "Sun Rise",
-            "path": "sunrise.py"
+            "path": "calc/sun/sunrise.py"
         },
         {
             "title": "Sun",
-            "path": "sun.py"
+            "path": "calc/sun/sun.py"
         }
     ]
 }
