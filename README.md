@@ -40,4 +40,4 @@ A brief description of your project, what it does, and who it's for.
 
    ```bash
    git clone https://github.com/Bromponie/jubilant-garbanzo.git
-   cd your-repo-name
+   cd jubilant-garbanzo
