@@ -20,5 +20,14 @@
             "title": "Sun",
             "path": "calc/sun/sun.py"
         }
-    ]
+    ],
+    
+    "latitude": 28.119596675868053,
+    "longitude": -82.629850968873,
+    "timezone": "Universal"
+   
+
+   
+ 
+
 }
