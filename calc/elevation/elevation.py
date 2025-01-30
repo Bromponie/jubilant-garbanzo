@@ -1,4 +1,6 @@
 import requests  # Import the requests library to handle HTTP requests
+import argparse  # Import argparse to parse command-line arguments
+import sys  # Import sys for system-specific parameters and functions
 
 def get_elevation(lat, lon):
     """
@@ -48,16 +50,41 @@ def get_elevation(lat, lon):
         print(f"Error fetching data from Open-Elevation: {e}")
         return None  # Return None to indicate that an error occurred
 
+def parse_arguments():
+    """
+    Parse command-line arguments for latitude and longitude.
+    
+    :return: Namespace containing latitude and longitude.
+    """
+    parser = argparse.ArgumentParser(
+        description="Retrieve elevation data for specified latitude and longitude using the Open-Elevation API."
+    )
+    
+    # Define the latitude argument
+    parser.add_argument(
+        '--lat',
+        type=float,
+        required=True,
+        help='Latitude of the location (e.g., 32.692984377272045)'
+    )
+    
+    # Define the longitude argument
+    parser.add_argument(
+        '--lon',
+        type=float,
+        required=True,
+        help='Longitude of the location (e.g., 79.27440843846019)'
+    )
+    
+    return parser.parse_args()
+
 # The following block ensures that the example usage only runs when the script is executed directly
 if __name__ == "__main__":
-    # Example coordinates (latitude and longitude) for which to fetch elevation data
-    # Uncomment the following lines to use different coordinates:
-    # latitude = -25.826629230519135
-    # longitude = 28.223651260896336
+    # Parse command-line arguments
+    args = parse_arguments()
     
-    # Current example coordinates
-    latitude = 32.692984377272045  # Latitude of the location
-    longitude = 79.27440843846019  # Longitude of the location
+    latitude = args.lat  # Latitude provided via command line
+    longitude = args.lon  # Longitude provided via command line
     
     # Call the get_elevation function with the specified latitude and longitude
     elevation_meters = get_elevation(latitude, longitude)
@@ -69,3 +96,4 @@ if __name__ == "__main__":
     else:
         # Inform the user that the elevation could not be determined
         print("Could not determine elevation.")
+        sys.exit(1)  # Exit the script with a non-zero status to indicate failure
