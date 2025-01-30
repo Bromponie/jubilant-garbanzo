@@ -1,0 +1,8 @@
+pip install datetime  
+pip install skyfield   
+pip install pytz   
+pip install datetime   
+pip install load   
+pip install wgs84   
+pip install zoneinfo   
+pip install matplotlib numpy
