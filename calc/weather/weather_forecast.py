@@ -99,15 +99,16 @@ def display_10d_forecast(data):
     forecast_days = data.get('forecast', {}).get('forecastday', [])
 
     print(f"10-Day Forecast for {location.get('name')}, {location.get('region')}, {location.get('country')}\n")
-    print(f"{'Date':<15}{'Avg Temp (°C)':<15}{'Condition'}")
-    print("-" * 50)
+    print(f"{'Date':<15}{'Min Temp (°C)':<15}{'Max Temp (°C)':<15}{'Condition'}")
+    print("-" * 60)
     
     for day in forecast_days:
         date = day.get('date')
         day_info = day.get('day', {})
-        avg_temp = day_info.get('avgtemp_c')
+        min_temp = day_info.get('mintemp_c')
+        max_temp = day_info.get('maxtemp_c')
         condition = day_info.get('condition', {}).get('text')
-        print(f"{date:<15}{avg_temp:<15}{condition}")
+        print(f"{date:<15}{min_temp:<15}{max_temp:<15}{condition}")
 
 def main():
     # Load environment variables from .env file
