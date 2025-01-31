@@ -28,7 +28,7 @@ def parse_arguments():
         "--forecast",
         type=str,
         choices=["24h", "10d"],
-        default="10d",
+        default="24h",
         required=False,
         help="Type of forecast: '24h' for 24-hour metric or '10d' for 10-day forecast"
     )
@@ -99,16 +99,83 @@ def display_10d_forecast(data):
     forecast_days = data.get('forecast', {}).get('forecastday', [])
 
     print(f"10-Day Forecast for {location.get('name')}, {location.get('region')}, {location.get('country')}\n")
-    print(f"{'Date':<15}{'Min Temp (°C)':<15}{'Max Temp (°C)':<15}{'Condition'}")
-    print("-" * 60)
+    
+    # Define table headers with the new fields
+    headers = [
+        "Date",
+        "Min Temp (°C)",
+        "Max Temp (°C)",
+        "Total Precip (mm)",
+        "Will It Rain",
+        "Sunrise",
+        "Sunset",
+        "Moonrise",
+        "Moonset",
+        "Moon Phase",
+        "Moon Illumination (%)",
+        "Is Sun Up",
+        "Is Moon Up"
+    ]
+    
+    # Define the width for each column
+    column_widths = [15, 15, 15, 18, 13, 10, 10, 10, 10, 15, 20, 12, 13]
+    
+    # Create the header row
+    header_row = ""
+    for header, width in zip(headers, column_widths):
+        header_row += f"{header:<{width}}"
+    print(header_row)
+    
+    # Create the separator
+    separator = "-" * sum(column_widths)
+    print(separator)
     
     for day in forecast_days:
         date = day.get('date')
         day_info = day.get('day', {})
+        astro_info = day.get('astro', {})
+        
         min_temp = day_info.get('mintemp_c')
         max_temp = day_info.get('maxtemp_c')
-        condition = day_info.get('condition', {}).get('text')
-        print(f"{date:<15}{min_temp:<15}{max_temp:<15}{condition}")
+        total_precip = day_info.get('totalprecip_mm')
+        will_it_rain = day_info.get('will_it_rain')
+        sunrise = astro_info.get('sunrise')
+        sunset = astro_info.get('sunset')
+        moonrise = astro_info.get('moonrise')
+        moonset = astro_info.get('moonset')
+        moon_phase = astro_info.get('moon_phase')
+        moon_illumination = astro_info.get('moon_illumination')
+        is_sun_up = day.get('is_day')  # 1 if day, 0 if night
+        is_moon_up = "N/A"  # WeatherAPI does not provide this directly
+
+        # Convert is_sun_up to a boolean string
+        is_sun_up_str = "Yes" if is_sun_up == 1 else "No"
+
+        # WeatherAPI does not provide 'is_moon_up'; setting as 'N/A'
+        # Alternatively, you can calculate based on moonrise and moonset times if desired
+
+        # Prepare the row data
+        row = [
+            date,
+            f"{min_temp}",
+            f"{max_temp}",
+            f"{total_precip}",
+            f"{'Yes' if will_it_rain else 'No'}",
+            sunrise,
+            sunset,
+            moonrise,
+            moonset,
+            moon_phase,
+            moon_illumination,
+            is_sun_up_str,
+            is_moon_up
+        ]
+        
+        # Create the row string with proper formatting
+        row_str = ""
+        for item, width in zip(row, column_widths):
+            row_str += f"{item:<{width}}"
+        print(row_str)
 
 def main():
     # Load environment variables from .env file
