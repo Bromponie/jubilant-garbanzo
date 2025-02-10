@@ -1,9 +1,10 @@
 import random
 import math
+import matplotlib.pyplot as plt
 
 # ----- GA Parameters -----
-NUM_CITIES = 10
-POP_SIZE = 50
+NUM_CITIES = 20
+POP_SIZE = 100
 NUM_GENERATIONS = 500
 TOURNAMENT_SIZE = 5
 CROSSOVER_RATE = 0.8
@@ -63,11 +64,11 @@ def init_population(pop_size, num_cities):
 def tournament_selection(population, cities, tournament_size):
     """
     Performs tournament selection by randomly choosing a subset of individuals
-    and returning the one with the lowest route distance.
+    and returning the one with the best (lowest) route distance.
     """
     tournament = random.sample(population, tournament_size)
     tournament.sort(key=lambda route: total_distance(route, cities))
-    return tournament[0][:]  # Return a copy of the best individual in the tournament.
+    return tournament[0][:]  # Return a copy of the best individual.
 
 # ----- Crossover (Order Crossover) -----
 def order_crossover(parent1, parent2):
@@ -104,12 +105,47 @@ def swap_mutation(individual):
     individual[a], individual[b] = individual[b], individual[a]
     return individual
 
+# ----- Visualization Functions -----
+def plot_route(cities, route):
+    """
+    Plots the TSP route showing the order of cities.
+    """
+    # Extract the x and y coordinates in the order defined by the route.
+    x = [cities[i][0] for i in route]
+    y = [cities[i][1] for i in route]
+    # Append the starting city to complete the cycle.
+    x.append(cities[route[0]][0])
+    y.append(cities[route[0]][1])
+    
+    plt.figure(figsize=(8, 6))
+    plt.plot(x, y, 'o-', color='blue', markersize=8)
+    for i, city in enumerate(route):
+        plt.text(cities[city][0] + 1, cities[city][1] + 1, str(city), fontsize=12, color='red')
+    plt.title("Best TSP Route")
+    plt.xlabel("X coordinate")
+    plt.ylabel("Y coordinate")
+    plt.grid(True)
+    plt.show()
+
+def plot_progress(history):
+    """
+    Plots the best distance found per generation.
+    """
+    plt.figure(figsize=(8, 6))
+    plt.plot(history, 'b-', linewidth=2)
+    plt.title("GA Progress: Best Distance per Generation")
+    plt.xlabel("Generation")
+    plt.ylabel("Best Distance")
+    plt.grid(True)
+    plt.show()
+
 # ----- Genetic Algorithm -----
 def genetic_algorithm(cities, pop_size, num_generations, tournament_size,
                       crossover_rate, mutation_rate, elitism):
     population = init_population(pop_size, len(cities))
     best_route = None
     best_distance = float('inf')
+    best_distance_history = []  # Store the best distance each generation
 
     for generation in range(num_generations):
         new_population = []
@@ -142,11 +178,11 @@ def genetic_algorithm(cities, pop_size, num_generations, tournament_size,
 
         population = new_population
 
-        # ----- Optionally print progress -----
+        best_distance_history.append(best_distance)
         if generation % 50 == 0:
             print(f"Generation {generation}: Best distance so far = {best_distance:.2f}")
 
-    return best_route, best_distance
+    return best_route, best_distance, best_distance_history
 
 # ----- Main Function -----
 def main():
@@ -157,7 +193,7 @@ def main():
         print(f"City {idx}: {city}")
 
     # Run the genetic algorithm.
-    best_route, best_route_distance = genetic_algorithm(
+    best_route, best_route_distance, best_distance_history = genetic_algorithm(
         cities,
         POP_SIZE,
         NUM_GENERATIONS,
@@ -171,6 +207,12 @@ def main():
     print("\nFinal Best Route (order of city indices):")
     print(best_route)
     print(f"Total route distance: {best_route_distance:.2f}")
+
+    # Visualize the best route.
+    plot_route(cities, best_route)
+
+    # Visualize the progress over generations.
+    plot_progress(best_distance_history)
 
 if __name__ == '__main__':
     main()
