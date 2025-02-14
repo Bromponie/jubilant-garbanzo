@@ -34,10 +34,25 @@ def parse_datetime(dt_str: str, tz_str: str) -> datetime:
     return dt.replace(tzinfo=tz)
 
 
+def parse_naive_datetime(dt_str: str) -> datetime:
+    """
+    Parse a datetime string without timezone information.
+
+    Parameters:
+        dt_str (str): Date and time in "YYYY-MM-DD HH:MM" format.
+
+    Returns:
+        datetime: A naive datetime object.
+    """
+    try:
+        return datetime.strptime(dt_str, "%Y-%m-%d %H:%M")
+    except ValueError as e:
+        raise ValueError(f"Invalid datetime format: {dt_str}. Expected 'YYYY-MM-DD HH:MM'.") from e
+
+
 def flight_duration(departure: datetime, arrival: datetime) -> (int, int):
     """
     Calculate the flight duration given departure and arrival datetimes.
-
     Both datetime objects must be timezone-aware.
     
     Parameters:
@@ -59,19 +74,18 @@ def flight_duration(departure: datetime, arrival: datetime) -> (int, int):
     return hours, minutes
 
 
-def layover_duration(prev_arrival: datetime, next_departure: datetime) -> (int, int):
+def layover_duration(prev_arr: datetime, next_dep: datetime) -> (int, int):
     """
-    Calculate the layover duration between two flights.
-
+    Calculate the layover duration between two flights in the same time zone.
+    
     Parameters:
-        prev_arrival (datetime): Arrival time of the previous flight.
-        next_departure (datetime): Departure time of the next flight.
+        prev_arr (datetime): Arrival time of the previous flight.
+        next_dep (datetime): Departure time of the next flight.
 
     Returns:
         (int, int): Tuple containing hours and minutes of layover duration.
     """
-    duration = next_departure.astimezone(ZoneInfo("UTC")) - prev_arrival.astimezone(ZoneInfo("UTC"))
-    
+    duration = next_dep - prev_arr
     if duration < timedelta(0):
         raise ValueError("Next departure time must be after previous arrival time.")
     
@@ -85,9 +99,10 @@ def main():
     parser = argparse.ArgumentParser(
         description="Calculate flight duration and layover durations considering time zones."
     )
-    subparsers = parser.add_subparsers(dest="command", required=True, help="Sub-command: 'flight' or 'layover'.")
+    subparsers = parser.add_subparsers(dest="command", required=True,
+                                       help="Sub-command: 'flight' or 'layover'.")
 
-    # Subparser for flight duration calculation
+    # Subparser for flight duration calculation (requires time zones)
     flight_parser = subparsers.add_parser("flight", help="Calculate flight duration.")
     flight_parser.add_argument("--dep_time", type=str, required=True,
                                help="Departure time in 'YYYY-MM-DD HH:MM' format.")
@@ -98,16 +113,12 @@ def main():
     flight_parser.add_argument("--arr_zone", type=str, required=True,
                                help="Arrival timezone (e.g., 'Europe/London').")
 
-    # Subparser for layover duration calculation
-    layover_parser = subparsers.add_parser("layover", help="Calculate layover duration between flights.")
+    # Subparser for layover duration calculation (assumes same timezone)
+    layover_parser = subparsers.add_parser("layover", help="Calculate layover duration between flights (same timezone).")
     layover_parser.add_argument("--prev_arr", type=str, required=True,
                                 help="Previous flight arrival time in 'YYYY-MM-DD HH:MM' format.")
-    layover_parser.add_argument("--prev_arr_zone", type=str, required=True,
-                                help="Previous flight arrival timezone.")
     layover_parser.add_argument("--next_dep", type=str, required=True,
                                 help="Next flight departure time in 'YYYY-MM-DD HH:MM' format.")
-    layover_parser.add_argument("--next_dep_zone", type=str, required=True,
-                                help="Next flight departure timezone.")
 
     args = parser.parse_args()
 
@@ -118,8 +129,8 @@ def main():
             hours, minutes = flight_duration(departure, arrival)
             print(f"Flight duration: {hours} hours and {minutes} minutes")
         elif args.command == "layover":
-            prev_arrival = parse_datetime(args.prev_arr, args.prev_arr_zone)
-            next_departure = parse_datetime(args.next_dep, args.next_dep_zone)
+            prev_arrival = parse_naive_datetime(args.prev_arr)
+            next_departure = parse_naive_datetime(args.next_dep)
             hours, minutes = layover_duration(prev_arrival, next_departure)
             print(f"Layover duration: {hours} hours and {minutes} minutes")
     except ValueError as err:
